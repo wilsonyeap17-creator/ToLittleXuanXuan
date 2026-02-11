@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生日快乐</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 首页 */
+.cover {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    z-index: 2;
+}
+
+.cover button {
+    padding: 15px 30px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 30px;
+    background: #ff4f7b;
+    color: white;
+    cursor: pointer;
+}
+
+/* 卡片 */
+.card {
+    display: none;
+    background: white;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: openCard 1s ease forwards;
+    z-index: 2;
+}
+
+@keyframes openCard {
+    from {
+        transform: rotateY(90deg) scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: rotateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* 照片轮播 */
+.photo-box {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+.photo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* 关键在这里 */
+    background: #000;      /* 黑边，看起来像相框 */
+}
+
+.card h2 {
+    text-align: center;
+    color: #ff4f7b;
+}
+
+.card p {
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* 烟花 */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="fireworks"></canvas>
+
+<!-- 首页 -->
+<div class="cover" id="cover">
+    <h1>🎂 生日快乐 🎂</h1>
+    <button onclick="openCard()">打开卡片 💖</button>
+</div>
+
+<!-- 卡片 -->
+<div class="card" id="card">
+    <div class="photo-box">
+        <img id="slideshow" src="photo1.jpg">
+    </div>
+
+    <h2>亲爱的林湘楹 ❤️</h2>
+    <p>
+        生日快乐 "Si Gin Na" 🎉<br>
+        成绩固然重要 记得在外要好好照顾自己哦 ✨<br>
+        永远都要那么开心哦 🤟<br><br>
+		
+	    只要不嫌弃 我永远都是你的靠山 🤘🥳<br>
+		Lup You My Little Xuan Xuan ❤️<br>
+    </p>
+</div>
+
+<!-- 背景音乐 -->
+<audio id="bgm" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* 打开卡片 */
+function openCard() {
+    document.getElementById("cover").style.display = "none";
+    document.getElementById("card").style.display = "block";
+    document.getElementById("bgm").play();
+    startFireworks();
+    startSlideshow();
+}
+
+/* ===== 照片自动切换 ===== */
+const photos = [
+    "photo1.jpg",
+    "photo2.jpg",
+    "photo3.jpg",
+	"photo4.jpg"
+];
+
+let index = 0;
+
+function startSlideshow() {
+    setInterval(() => {
+        index = (index + 1) % photos.length;
+        document.getElementById("slideshow").src = photos[index];
+    }, 3000); // 👉 3000 = 3秒换一张
+}
+
+/* ===== 烟花 ===== */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+window.onresize = () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+};
+
+let particles = [];
+
+function startFireworks() {
+    setInterval(() => {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height / 2;
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x,
+                y,
+                vx: (Math.random() - 0.5) * 4,
+                vy: (Math.random() - 0.5) * 4,
+                life: 80
+            });
+        }
+    }, 700);
+}
+
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        ctx.fillStyle = `rgba(255, ${Math.random()*255}, ${Math.random()*255}, ${p.life/80})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        if (p.life <= 0) particles.splice(i, 1);
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
